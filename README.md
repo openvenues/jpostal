@@ -70,7 +70,7 @@ Only one command is needed:
 ./gradlew assemble
 ```
 
-This will implicitly run (build.sh)[./build.sh] which automatically runs the Autotools build for the JNI/C portion of the library and installs the resulting shared libraries in the expected location for java.library.path
+This will implicitly run [build.sh](./build.sh) which automatically runs the Autotools build for the JNI/C portion of the library and installs the resulting shared libraries in the expected location for java.library.path
 
 Compatibility
 -------------
