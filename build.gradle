@@ -1,0 +1,19 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+task buildJniLib(type:Exec) {
+  commandLine './build.sh'
+}
+
+compileJava.dependsOn(buildJniLib)
+
+dependencies {
+    testCompile 'junit:junit:4.+'
+}
+
+tasks.withType(Test) {
+    systemProperty "java.library.path", "src/main/jniLibs"
+}
