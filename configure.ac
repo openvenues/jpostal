@@ -11,7 +11,7 @@ AC_CONFIG_SRCDIR([src/main/c])
 LT_INIT([shared])
 
 # Checks for programs.
-AC_PROG_CC
+AC_PROG_CC_C99
 
 AX_PROG_JAVAC
 AX_JNI_INCLUDE_DIR
