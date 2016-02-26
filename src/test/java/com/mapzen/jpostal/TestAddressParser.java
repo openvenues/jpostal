@@ -16,7 +16,7 @@ public class TestAddressParser {
             ParsedComponent c2 = expectedOutput[i];
 
             assertEquals(c1.getLabel(), c2.getLabel());
-            assertEquals(c1.getComponent(), c2.getComponent());
+            assertEquals(c1.getValue(), c2.getValue());
         }
     } 
 

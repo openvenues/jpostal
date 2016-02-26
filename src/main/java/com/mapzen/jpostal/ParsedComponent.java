@@ -1,27 +1,27 @@
 package com.mapzen.jpostal;
 
 public class ParsedComponent {
-    private String component;
+    private String value;
     private String label;
 
-    public String getComponent() {
-        return this.component;
+    public String getValue() {
+        return this.value;
     }
 
     public String getLabel() {
         return this.label;
     }
 
-    public void setComponent(String component) {
-        this.component = component;
+    public void setValue(String value) {
+        this.value = value;
     }
 
     public void setLabel(String label) {
         this.label = label;
     }
 
-    public ParsedComponent(String component, String label) {
-        this.component = component;
+    public ParsedComponent(String value, String label) {
+        this.value = value;
         this.label = label;
     }
 }
