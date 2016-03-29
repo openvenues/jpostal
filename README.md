@@ -15,7 +15,7 @@ import com.mapzen.jpostal.AddressExpander;
 
 // Singleton, libpostal setup is done in the constructor
 AddressExpander e = AddressExpander.getInstance();
-String[] expansions = e.expandAddress("Quatre vignt douze Ave des Champs-Élysées");
+String[] expansions = e.expandAddress("Quatre vingt douze Ave des Champs-Élysées");
 ```
 
 To parse addresses into components:
