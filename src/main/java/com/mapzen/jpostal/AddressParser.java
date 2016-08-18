@@ -25,7 +25,7 @@ public class AddressParser {
         return libpostalParse(address, options);
     }
 
-    public ParsedComponent[] expandAddressWithOptions(String address, ParserOptions options) {
+    public ParsedComponent[] parseAddressWithOptions(String address, ParserOptions options) {
         return libpostalParse(address, options);
     }
     
