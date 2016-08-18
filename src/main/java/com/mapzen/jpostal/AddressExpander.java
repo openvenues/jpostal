@@ -8,12 +8,12 @@ public class AddressExpander {
     }
 
     private static AddressExpander instance = null;
+    private static class SingletonHolder {
+        private static final AddressExpander instance = new AddressExpander();   
+    }
 
     public static AddressExpander getInstance() {
-        if (instance == null) {
-            instance = new AddressExpander();
-        }
-        return instance;
+        return SingletonHolder.instance;
     }
  
     static native synchronized void setup();

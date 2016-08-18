@@ -12,7 +12,13 @@ public class AddressParser {
     private native synchronized ParsedComponent[] libpostalParse(String address, ParserOptions options);
     static native synchronized void teardown();
 
-    private static AddressParser instance = null;
+    private static class SingletonHolder {
+        private static final AddressParser instance = new AddressParser();
+    }
+
+    public static AddressParser getInstance() {
+        return SingletonHolder.instance;
+    }
 
     public ParsedComponent[] parseAddress(String address) {
         ParserOptions options = new ParserOptions.Builder().build();
@@ -32,10 +38,4 @@ public class AddressParser {
         teardown();
     }
 
-    public static AddressParser getInstance() {
-        if (instance == null) {
-            instance = new AddressParser();
-        }
-        return instance;
-    }
 }
