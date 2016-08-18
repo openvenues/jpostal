@@ -22,11 +22,15 @@ public class AddressParser {
 
     public ParsedComponent[] parseAddress(String address) {
         ParserOptions options = new ParserOptions.Builder().build();
-        return libpostalParse(address, options);
+        synchronized(this) {
+            return libpostalParse(address, options);
+        }
     }
 
     public ParsedComponent[] parseAddressWithOptions(String address, ParserOptions options) {
-        return libpostalParse(address, options);
+        synchronized(this) {
+            return libpostalParse(address, options);
+        }
     }
     
 

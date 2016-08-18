@@ -22,11 +22,15 @@ public class AddressExpander {
 
     public String[] expandAddress(String address) {
         ExpanderOptions options = new ExpanderOptions.Builder().build();
-        return libpostalExpand(address, options);
+        synchronized(this) {
+            return libpostalExpand(address, options);
+        }
     }
 
     public String[] expandAddressWithOptions(String address, ExpanderOptions options) {
-        return libpostalExpand(address, options);
+        synchronized(this) {
+            return libpostalExpand(address, options);
+        }
     }
 
     protected AddressExpander() {
