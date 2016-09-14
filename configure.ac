@@ -42,7 +42,7 @@ AC_TYPE_UINT16_T
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([strdup])
 
-PKG_CHECK_MODULES([libpostal], [libpostal],, AC_MSG_ERROR([Could not find libpostal]))
+PKG_CHECK_MODULES([LIBPOSTAL], [libpostal],, AC_MSG_ERROR([Could not find libpostal]))
 
 AC_CONFIG_FILES([Makefile
                  src/main/c/Makefile])
