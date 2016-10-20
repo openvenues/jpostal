@@ -28,7 +28,7 @@ AddressParser p = AddressParser.getInstance();
 ParsedComponent[] components = p.parseAddress("The Book Club 100-106 Leonard St, Shoreditch, London, Greater London, EC2A 4RH, United Kingdom");
 
 for (ParsedComponent c : components) {
-    System.out.printf("%s: %s\n", c.getLabel(), c.getComponent());
+    System.out.printf("%s: %s\n", c.getLabel(), c.getValue());
 }
 ```
 
