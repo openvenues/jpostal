@@ -77,6 +77,8 @@ Only one command is needed:
 
 This will implicitly run [build.sh](./build.sh) which automatically runs the Autotools build for the JNI/C portion of the library and installs the resulting shared libraries in the expected location for java.library.path
 
+On RHEL it might be necessary to set ```PKG_CONFIG_PATH=/usr/lib/pkgconfig``` before running the gradle build.
+
 Compatibility
 -------------
 
