@@ -21,13 +21,17 @@ public class AddressParser {
     }
 
     public ParsedComponent[] parseAddress(String address) {
-        ParserOptions options = new ParserOptions.Builder().build();
-        synchronized(this) {
-            return libpostalParse(address, options);
-        }
+        return parseAddressWithOptions(address, new ParserOptions.Builder().build());
     }
 
     public ParsedComponent[] parseAddressWithOptions(String address, ParserOptions options) {
+        if (address == null) {
+            throw new NullPointerException("String address must not be null");
+        }
+        if (options == null) {
+            throw new NullPointerException("ParserOptions options must not be null");
+        }
+
         synchronized(this) {
             return libpostalParse(address, options);
         }

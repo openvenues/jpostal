@@ -1,7 +1,9 @@
 package com.mapzen.jpostal;
 
-import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class TestAddressExpander {
     private static boolean expansionInOutput(String[] expansions, String output) {
@@ -26,6 +28,27 @@ public class TestAddressExpander {
         String[] expansions = expander.expandAddressWithOptions(address, options);
 
         return expansionInOutput(expansions, output);
+    }
+
+    @Test
+    public void testExpandNull() {
+        AddressExpander expander = AddressExpander.getInstance();
+        ExpanderOptions options = new ExpanderOptions.Builder().build();
+
+        try {
+            expander.expandAddress(null);
+            fail("Should throw NullPointerException to protect JNI");
+        } catch (NullPointerException e) {}
+
+        try {
+            expander.expandAddressWithOptions(null, options);
+            fail("Should throw NullPointerException to protect JNI");
+        } catch (NullPointerException e) {}
+
+        try {
+            expander.expandAddressWithOptions("address", null);
+            fail("Should throw NullPointerException to protect JNI");
+        } catch (NullPointerException e) {}
     }
 
     @Test
