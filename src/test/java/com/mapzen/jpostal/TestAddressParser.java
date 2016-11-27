@@ -1,8 +1,10 @@
 package com.mapzen.jpostal;
 
+import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import org.junit.Test;
+import static org.junit.Assert.fail;
 
 public class TestAddressParser {
     private static void testParse(String address, ParsedComponent... expectedOutput) {
@@ -18,7 +20,28 @@ public class TestAddressParser {
             assertEquals(c1.getLabel(), c2.getLabel());
             assertEquals(c1.getValue(), c2.getValue());
         }
-    } 
+    }
+
+    @Test
+    public void testParseNull() {
+        AddressParser parser = AddressParser.getInstance();
+        ParserOptions options = new ParserOptions.Builder().build();
+
+        try {
+            parser.parseAddress(null);
+            fail("Should throw NullPointerException to protect JNI");
+        } catch (NullPointerException e) {}
+
+        try {
+            parser.parseAddressWithOptions(null, options);
+            fail("Should throw NullPointerException to protect JNI");
+        } catch (NullPointerException e) {}
+
+        try {
+            parser.parseAddressWithOptions("address", null);
+            fail("Should throw NullPointerException to protect JNI");
+        } catch (NullPointerException e) {}
+    }
 
     @Test
     public void testParseUSAddress() {

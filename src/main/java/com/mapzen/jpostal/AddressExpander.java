@@ -21,13 +21,17 @@ public class AddressExpander {
     static native synchronized void teardown();
 
     public String[] expandAddress(String address) {
-        ExpanderOptions options = new ExpanderOptions.Builder().build();
-        synchronized(this) {
-            return libpostalExpand(address, options);
-        }
+        return expandAddressWithOptions(address, new ExpanderOptions.Builder().build());
     }
 
     public String[] expandAddressWithOptions(String address, ExpanderOptions options) {
+        if (address == null) {
+            throw new NullPointerException("String address must not be null");
+        }
+        if (options == null) {
+            throw new NullPointerException("ExpanderOptions options must not be null");
+        }
+
         synchronized(this) {
             return libpostalExpand(address, options);
         }
