@@ -5,10 +5,23 @@ JNIEXPORT void JNICALL Java_com_mapzen_jpostal_AddressParser_setup
   (JNIEnv *env, jclass cls) {
 
     if (!libpostal_setup() || !libpostal_setup_parser()) {
-        exit(EXIT_FAILURE);
+        jclass exceptionClass;
+        exceptionClass = (*env)->FindClass(env, "java/lang/RuntimeException");
+        if (exceptionClass == NULL) return;
+        (*env)->ThrowNew(env, exceptionClass, "Error loading libpostal parser modules\n");
     }
 }
 
+JNIEXPORT void JNICALL Java_com_mapzen_jpostal_AddressParser_setupDataDir
+  (JNIEnv *env, jclass cls, jstring jDataDir) {
+    const char *datadir = (*env)->GetStringUTFChars(env, jDataDir, 0);
+    if (!libpostal_setup_datadir((char *)datadir) || !libpostal_setup_parser_datadir((char *)datadir)) {
+        jclass exceptionClass;
+        exceptionClass = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
+        if (exceptionClass == NULL) return;
+        (*env)->ThrowNew(env, exceptionClass, "Error loading libpostal parser modules\n");
+    }    
+}
 
 JNIEXPORT jobjectArray JNICALL Java_com_mapzen_jpostal_AddressParser_libpostalParse
   (JNIEnv *env, jobject thisObj, jstring jAddress, jobject jOptions) {

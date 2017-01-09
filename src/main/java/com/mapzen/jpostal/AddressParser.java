@@ -9,6 +9,7 @@ public class AddressParser {
     }
 
     static native synchronized void setup();
+    static native synchronized void setupDataDir(String dataDir);
     private native synchronized ParsedComponent[] libpostalParse(String address, ParserOptions options);
     static native synchronized void teardown();
 

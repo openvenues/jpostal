@@ -17,6 +17,7 @@ public class AddressExpander {
     }
  
     static native synchronized void setup();
+    static native synchronized void setupDataDir(String dataDir);
     private static native synchronized String[] libpostalExpand(String address, ExpanderOptions options);
     static native synchronized void teardown();
 

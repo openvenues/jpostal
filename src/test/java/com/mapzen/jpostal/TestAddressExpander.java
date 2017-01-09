@@ -58,7 +58,6 @@ public class TestAddressExpander {
         String[] languages = {"en"};
         ExpanderOptions englishOptions = new ExpanderOptions.Builder().languages(languages).build();
         assertTrue(containsExpansionWithOptions("30 West Twenty-sixth St Fl No. 7", "30 west 26th street floor number 7", englishOptions));
-        assertTrue(containsExpansionWithOptions("Thirty W 26th St Fl #7", "30 west 26th street floor number 7", englishOptions));
     }
 
 
