@@ -32,6 +32,17 @@ for (ParsedComponent c : components) {
 }
 ```
 
+To use a libpostal installation with a datadir known at setup-time:
+
+```java
+
+import com.mapzen.jpostal.AddressParser;
+import com.mapzen.jpostal.AddressExpander;
+
+AddressExpander e = AddressExpander.getInstanceDataDir("/some/path");
+AddressParser p = AddressParser.getInstanceDataDir("/some/path");
+```
+
 Building libpostal
 ------------------
 
@@ -65,6 +76,8 @@ sudo make install
 # On Linux it's probably a good idea to run
 sudo ldconfig
 ```
+
+Note: libpostal >= v0.3.3 is required to use this binding.
 
 Building jpostal
 ----------------
