@@ -7,15 +7,24 @@ public class AddressExpander {
         System.loadLibrary("jpostal_expander"); // Load native library at runtime
     }
 
-    private static AddressExpander instance = null;
-    private static class SingletonHolder {
-        private static final AddressExpander instance = new AddressExpander();   
+    private volatile static AddressExpander instance = null;
+
+    public static AddressExpander getInstanceDataDir(String dataDir) {
+        if (instance == null) {
+            synchronized(AddressExpander.class) {
+                if (instance == null) {
+                    instance = new AddressExpander(dataDir);
+                }
+            }
+        }
+        return instance;
     }
 
     public static AddressExpander getInstance() {
-        return SingletonHolder.instance;
+        return getInstanceDataDir(null);
     }
- 
+
+
     static native synchronized void setup();
     static native synchronized void setupDataDir(String dataDir);
     private static native synchronized String[] libpostalExpand(String address, ExpanderOptions options);
@@ -38,8 +47,12 @@ public class AddressExpander {
         }
     }
 
-    protected AddressExpander() {
-        setup();      
+    protected AddressExpander(String dataDir) {
+        if (dataDir == null) {
+            setup();
+        } else {
+            setupDataDir(dataDir);
+        }
     } 
 
     protected void finalize() {

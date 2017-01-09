@@ -13,12 +13,21 @@ public class AddressParser {
     private native synchronized ParsedComponent[] libpostalParse(String address, ParserOptions options);
     static native synchronized void teardown();
 
-    private static class SingletonHolder {
-        private static final AddressParser instance = new AddressParser();
-    }
+    private volatile static AddressParser instance = null;
 
+    public static AddressParser getInstanceDataDir(String dataDir) {
+        if (instance == null) {
+            synchronized(AddressParser.class) {
+                if (instance == null) {
+                    instance = new AddressParser(dataDir);
+                }
+            }
+        }
+        return instance;
+    }
+        
     public static AddressParser getInstance() {
-        return SingletonHolder.instance;
+        return getInstanceDataDir(null);
     }
 
     public ParsedComponent[] parseAddress(String address) {
@@ -36,12 +45,15 @@ public class AddressParser {
         synchronized(this) {
             return libpostalParse(address, options);
         }
-    }
-    
-
-    protected AddressParser() {
-        setup();      
     } 
+
+    protected AddressParser(String dataDir) {
+        if (dataDir == null) {
+            setup();
+        } else {
+            setupDataDir(dataDir);
+        }
+    }
 
     protected void finalize() {
         teardown();
