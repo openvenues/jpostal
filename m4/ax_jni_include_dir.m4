@@ -1,5 +1,5 @@
 # ===========================================================================
-#    http://www.gnu.org/software/autoconf-archive/ax_jni_include_dir.html
+#    https://www.gnu.org/software/autoconf-archive/ax_jni_include_dir.html
 # ===========================================================================
 #
 # SYNOPSIS
@@ -44,7 +44,7 @@
 #   and this notice are preserved. This file is offered as-is, without any
 #   warranty.
 
-#serial 11
+#serial 13
 
 AU_ALIAS([AC_JNI_INCLUDE_DIR], [AX_JNI_INCLUDE_DIR])
 AC_DEFUN([AX_JNI_INCLUDE_DIR],[
@@ -52,28 +52,31 @@ AC_DEFUN([AX_JNI_INCLUDE_DIR],[
 JNI_INCLUDE_DIRS=""
 
 if test "x$JAVA_HOME" != x; then
-        _JTOPDIR="$JAVA_HOME"
+    _JTOPDIR="$JAVA_HOME"
 else
-        if test "x$JAVAC" = x; then
-                JAVAC=javac
-        fi
-        AC_PATH_PROG([_ACJNI_JAVAC], [$JAVAC], [no])
-        if test "x$_ACJNI_JAVAC" = xno; then
-                AC_MSG_ERROR([cannot find JDK; try setting \$JAVAC or \$JAVA_HOME])
-        fi
-        _ACJNI_FOLLOW_SYMLINKS("$_ACJNI_JAVAC")
-        _JTOPDIR=`echo "$_ACJNI_FOLLOWED" | sed -e 's://*:/:g' -e 's:/[[^/]]*$::'`
+    if test "x$JAVAC" = x; then
+        JAVAC=javac
+    fi
+    AC_PATH_PROG([_ACJNI_JAVAC], [$JAVAC], [no])
+    if test "x$_ACJNI_JAVAC" = xno; then
+        AC_MSG_ERROR([cannot find JDK; try setting \$JAVAC or \$JAVA_HOME])
+    fi
+    _ACJNI_FOLLOW_SYMLINKS("$_ACJNI_JAVAC")
+    _JTOPDIR=`echo "$_ACJNI_FOLLOWED" | sed -e 's://*:/:g' -e 's:/[[^/]]*$::'`
 fi
 
 case "$host_os" in
-        darwin*)        # Apple JDK is at /System location and has headers symlinked elsewhere
-                        case "$_JTOPDIR" in
-                        /System/Library/Frameworks/JavaVM.framework/*)
-                                _JTOPDIR=`echo "$_JTOPDIR" | sed -e 's:/[[^/]]*$::'`
-                                _JINC="$_JTOPDIR/Headers";;
-                        *)      _JINC="$_JTOPDIR/include";;
-                        esac;;
-        *)              _JINC="$_JTOPDIR/include";;
+        darwin*)        # Apple Java headers are inside the Xcode bundle.
+            macos_version=$(sw_vers -productVersion | sed -n -e 's/^@<:@0-9@:>@*.\(@<:@0-9@:>@*\).@<:@0-9@:>@*/\1/p')
+            if @<:@ "$macos_version" -gt "7" @:>@; then
+                _JTOPDIR="$(xcrun --show-sdk-path)/System/Library/Frameworks/JavaVM.framework"
+                _JINC="$_JTOPDIR/Headers"
+            else
+                _JTOPDIR="/System/Library/Frameworks/JavaVM.framework"
+                _JINC="$_JTOPDIR/Headers"
+            fi
+            ;;
+        *) _JINC="$_JTOPDIR/include";;
 esac
 _AS_ECHO_LOG([_JTOPDIR=$_JTOPDIR])
 _AS_ECHO_LOG([_JINC=$_JINC])
@@ -82,12 +85,12 @@ _AS_ECHO_LOG([_JINC=$_JINC])
 # /System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/jni.h
 # -> ../../CurrentJDK/Headers/jni.h.
 AC_CHECK_FILE([$_JINC/jni.h],
-        [JNI_INCLUDE_DIRS="$JNI_INCLUDE_DIRS $_JINC"],
-        [_JTOPDIR=`echo "$_JTOPDIR" | sed -e 's:/[[^/]]*$::'`
-         AC_CHECK_FILE([$_JTOPDIR/include/jni.h],
-                [JNI_INCLUDE_DIRS="$JNI_INCLUDE_DIRS $_JTOPDIR/include"],
+    [JNI_INCLUDE_DIRS="$JNI_INCLUDE_DIRS $_JINC"],
+    [_JTOPDIR=`echo "$_JTOPDIR" | sed -e 's:/[[^/]]*$::'`
+     AC_CHECK_FILE([$_JTOPDIR/include/jni.h],
+        [JNI_INCLUDE_DIRS="$JNI_INCLUDE_DIRS $_JTOPDIR/include"],
                 AC_MSG_ERROR([cannot find JDK header files]))
-        ])
+    ])
 
 # get the likely subdirectories for system specific java includes
 case "$host_os" in
@@ -97,8 +100,8 @@ darwin*)        _JNI_INC_SUBDIRS="darwin";;
 linux*)         _JNI_INC_SUBDIRS="linux genunix";;
 osf*)           _JNI_INC_SUBDIRS="alpha";;
 solaris*)       _JNI_INC_SUBDIRS="solaris";;
-mingw*)         _JNI_INC_SUBDIRS="win32";;
-cygwin*)        _JNI_INC_SUBDIRS="win32";;
+mingw*)     _JNI_INC_SUBDIRS="win32";;
+cygwin*)    _JNI_INC_SUBDIRS="win32";;
 *)              _JNI_INC_SUBDIRS="genunix";;
 esac
 
