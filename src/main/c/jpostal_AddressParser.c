@@ -28,7 +28,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_mapzen_jpostal_AddressParser_libpostalPa
 
     const char *address = (*env)->GetStringUTFChars(env, jAddress, 0);
 
-    address_parser_options_t options = get_libpostal_address_parser_default_options();
+    libpostal_address_parser_options_t options = libpostal_get_address_parser_default_options();
 
     jfieldID fid;
  
@@ -56,7 +56,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_mapzen_jpostal_AddressParser_libpostalPa
         options.country = (char *)(*env)->GetStringUTFChars(env, jCountry, 0);
     }
 
-    address_parser_response_t *response = parse_address((char *)address, options);
+    libpostal_address_parser_response_t *response = libpostal_parse_address((char *)address, options);
 
     (*env)->ReleaseStringUTFChars(env, jAddress, address);
 
@@ -92,7 +92,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_mapzen_jpostal_AddressParser_libpostalPa
     }
 
     if (response != NULL) {
-        address_parser_response_destroy(response);
+        libpostal_address_parser_response_destroy(response);
     }
 
     return ret;
@@ -112,7 +112,7 @@ JNIEXPORT void JNICALL Java_com_mapzen_jpostal_ParserOptions_00024Builder_setDef
     jfieldID fid;
     jclass cls = (*env)->GetObjectClass(env, builder);
 
-    address_parser_options_t default_options = get_libpostal_address_parser_default_options();
+    libpostal_address_parser_options_t default_options = libpostal_get_address_parser_default_options();
 
     fid = (*env)->GetFieldID(env, cls, "language", "Ljava/lang/String;");
     if (fid == 0) {
