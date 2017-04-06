@@ -55,33 +55,5 @@ public class TestAddressParser {
                   new ParsedComponent("11216", "postcode"),
                   new ParsedComponent("usa", "country")
                  );
-
-        testParse("whole foods ny",
-                  new ParsedComponent("whole foods", "house"),
-                  new ParsedComponent("ny", "state")
-                 );
-
-        testParse("1917/2 Pike Drive",
-                  new ParsedComponent("1917 / 2", "house_number"),
-                  new ParsedComponent("pike drive", "road")
-                 );
-
-        testParse("3437 warwickshire rd,pa",
-                  new ParsedComponent("3437", "house_number"),
-                  new ParsedComponent("warwickshire rd", "road"),
-                  new ParsedComponent("pa", "state")
-                 );
-
-        testParse("3437 warwickshire rd, pa",
-                  new ParsedComponent("3437", "house_number"),
-                  new ParsedComponent("warwickshire rd", "road"),
-                  new ParsedComponent("pa", "state")
-                 );
-
-        testParse("3437 warwickshire rd pa",
-                  new ParsedComponent("3437", "house_number"),
-                  new ParsedComponent("warwickshire rd", "road"),
-                  new ParsedComponent("pa", "state")
-                 );
     }
 }

@@ -30,7 +30,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_mapzen_jpostal_AddressExpander_libpostal
     const char *address = (*env)->GetStringUTFChars(env, jAddress, 0);
 
     size_t num_expansions = 0;
-    normalize_options_t options = get_libpostal_default_options();
+    libpostal_normalize_options_t options = libpostal_get_default_options();
 
     jfieldID fid;
 
@@ -208,7 +208,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_mapzen_jpostal_AddressExpander_libpostal
 
     options.roman_numerals = (*env)->GetBooleanField(env, jOptions, fid);
 
-    char **expansions = expand_address((char *)address, options, &num_expansions);
+    char **expansions = libpostal_expand_address((char *)address, options, &num_expansions);
 
     (*env)->ReleaseStringUTFChars(env, jAddress, address);
 
@@ -225,7 +225,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_mapzen_jpostal_AddressExpander_libpostal
     }
 
     if (expansions != NULL) {
-        expansion_array_destroy(expansions, num_expansions);
+        libpostal_expansion_array_destroy(expansions, num_expansions);
     }
 
     if (languages != NULL) {
@@ -250,7 +250,7 @@ JNIEXPORT void JNICALL Java_com_mapzen_jpostal_ExpanderOptions_00024Builder_setD
     jfieldID fid;
     jclass cls = (*env)->GetObjectClass(env, builder);
 
-    normalize_options_t default_options = get_libpostal_default_options();
+    libpostal_normalize_options_t default_options = libpostal_get_default_options();
 
     fid = (*env)->GetFieldID(env, cls, "languages", "[Ljava/lang/String;");
     if (fid == 0) {

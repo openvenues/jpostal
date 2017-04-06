@@ -50,17 +50,17 @@ Before building the Java bindings, you must install the libpostal C library. Mak
 
 **On Ubuntu/Debian**
 ```
-sudo apt-get install curl libsnappy-dev autoconf automake libtool pkg-config
+sudo apt-get install curl autoconf automake libtool pkg-config
 ```
 
 **On CentOS/RHEL**
 ```
-sudo yum install snappy snappy-devel autoconf automake libtool pkgconfig
+sudo yum install curl autoconf automake libtool pkgconfig
 ```
 
 **On Mac OSX**
 ```
-sudo brew install snappy autoconf automake libtool pkg-config
+sudo brew install curl autoconf automake libtool pkg-config
 ```
 
 **Installing libpostal**
@@ -91,6 +91,13 @@ Only one command is needed:
 This will implicitly run [build.sh](./build.sh) which automatically runs the Autotools build for the JNI/C portion of the library and installs the resulting shared libraries in the expected location for java.library.path
 
 On RHEL it might be necessary to set ```PKG_CONFIG_PATH=/usr/lib/pkgconfig``` before running the gradle build.
+
+Usage in a Java project
+-----------------------
+
+The JNI portion of jpostal builds shared object files (.so on Linux, .jniLib on Mac) that need to be on java.library.path. After running ```gradle assemble``` the .so/.jniLib files can be found under ```src/main/jniLibs``` in the checkout dir. For running the tests, we set java.library.path explicitly [here](https://github.com/openvenues/jpostal/blob/master/build.gradle#L18).
+
+For gradle users, there's a plugin called gradle-natives that may be helpful: https://github.com/cjstehno/coffeaelectronica/wiki/Going-Native-with-Gradle
 
 Compatibility
 -------------
