@@ -1,1 +1,0 @@
-mvn install:install-file -Dfile=./build/libs/jpostal.jar -DgroupId=com.openvenues -DartifactId=jpostal -Dversion=0.5 -Dpackaging=jar
