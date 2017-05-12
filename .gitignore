@@ -10,3 +10,21 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+.gradle/
+Makefile
+build/
+src/main/c
+m4/
+Makefile.in
+m4/
+src/main/jniLibs/
+config*
+aclocal.m4
+autom4te.cache/
+compile
+depcomp
+install-sh
+libtool
+ltmain.sh
+missing
+stamp-h1
