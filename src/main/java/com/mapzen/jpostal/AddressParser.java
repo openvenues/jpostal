@@ -1,8 +1,5 @@
 package com.mapzen.jpostal;
 
-import com.mapzen.jpostal.ParsedComponent;
-import com.mapzen.jpostal.ParserOptions;
-
 public class AddressParser {
     static {
         System.loadLibrary("jpostal_parser"); // Load native library at runtime
@@ -41,6 +38,8 @@ public class AddressParser {
         if (options == null) {
             throw new NullPointerException("ParserOptions options must not be null");
         }
+        if (address.contains("\0"))
+            throw new IllegalArgumentException("Input cannot contain null bytes");
 
         synchronized(this) {
             return libpostalParse(address, options);

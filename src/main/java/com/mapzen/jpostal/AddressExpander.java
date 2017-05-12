@@ -1,7 +1,5 @@
 package com.mapzen.jpostal;
 
-import com.mapzen.jpostal.ExpanderOptions;
-
 public class AddressExpander {
     static {
         System.loadLibrary("jpostal_expander"); // Load native library at runtime
@@ -41,6 +39,8 @@ public class AddressExpander {
         if (options == null) {
             throw new NullPointerException("ExpanderOptions options must not be null");
         }
+        if (address.contains("\0"))
+            throw new IllegalArgumentException("Input cannot contain null bytes");
 
         synchronized(this) {
             return libpostalExpand(address, options);
