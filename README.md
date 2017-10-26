@@ -70,6 +70,10 @@ git clone https://github.com/openvenues/libpostal
 cd libpostal
 ./bootstrap.sh
 ./configure --datadir=[...some dir with a few GB of space...]
+
+# On Linux, set PKG_CONFIG_PATH to libpostal local repo root for the jpostal build follows.
+export PKG_CONFIG_PATH=$(pwd)
+
 make
 sudo make install
 
