@@ -16,6 +16,10 @@ addons:
         - libsnappy-dev
         - realpath
 before_install:
+    - cat /etc/hosts # optionally check the content *before*
+    - sudo hostname "$(hostname | cut -c1-63)"
+    - sed -e "s/^\\(127\\.0\\.0\\.1.*\\)/\\1 $(hostname | cut -c1-63)/" /etc/hosts | sudo tee /etc/hosts
+    - cat /etc/hosts # optionally check the content *after*
     - export CC="gcc-4.8"
     - mkdir deps
     - git clone https://github.com/openvenues/libpostal
