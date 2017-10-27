@@ -60,19 +60,16 @@ sudo yum install curl autoconf automake libtool pkgconfig
 
 **On Mac OSX**
 ```
-sudo brew install curl autoconf automake libtool pkg-config
+brew install curl autoconf automake libtool pkg-config
 ```
 
 **Installing libpostal**
 
-```
+```shell
 git clone https://github.com/openvenues/libpostal
 cd libpostal
 ./bootstrap.sh
 ./configure --datadir=[...some dir with a few GB of space...]
-
-# On Linux, set PKG_CONFIG_PATH to libpostal local repo root for the jpostal build follows.
-export PKG_CONFIG_PATH=$(pwd)
 
 make
 sudo make install
@@ -82,6 +79,29 @@ sudo ldconfig
 ```
 
 Note: libpostal >= v0.3.3 is required to use this binding.
+
+Make sure pkg-config can find libpostal
+---------------------------------------
+
+Some users have reported issues with the jpostal build related to pkg-config.
+
+For jpostal to build, make sure this command runs without any errors:
+
+```shell
+pkg-config --cflags --libs libpostal
+```
+
+If you get a message like `No package 'libpostal' found`, try the following:
+
+```shell
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+```
+
+Try the `pkg-config --cflags --libs libpostal` command again. If it still can't find libpostal, return to the libpostal checkout directory and try:
+
+```shell
+export PKG_CONFIG_PATH=$(pwd)
+```
 
 Building jpostal
 ----------------
@@ -93,8 +113,6 @@ Only one command is needed:
 ```
 
 This will implicitly run [build.sh](./build.sh) which automatically runs the Autotools build for the JNI/C portion of the library and installs the resulting shared libraries in the expected location for java.library.path
-
-On RHEL it might be necessary to set ```PKG_CONFIG_PATH=/usr/lib/pkgconfig``` before running the gradle build.
 
 Usage in a Java project
 -----------------------
