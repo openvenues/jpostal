@@ -43,6 +43,18 @@ public class TestAddressParser {
         } catch (NullPointerException e) {}
     }
 
+    @Test(timeout=1000)
+    public void testNullChars() {
+        AddressParser parser = AddressParser.getInstance();
+        try {
+            parser.parseAddress("hello\0world");
+            fail("Should throw IllegalArgumentException to protect JNI");
+        }
+        catch (IllegalArgumentException e) {
+
+        }
+    }
+
     @Test
     public void testParseUSAddress() {
         testParse("781 Franklin Ave Crown Heights Brooklyn NYC NY 11216 USA", 

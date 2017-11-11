@@ -51,6 +51,18 @@ public class TestAddressExpander {
         } catch (NullPointerException e) {}
     }
 
+    @Test(timeout=1000)
+    public void testNullChars() {
+        AddressExpander parser = AddressExpander.getInstance();
+        try {
+            parser.expandAddress("hello\0world");
+            fail("Should throw IllegalArgumentException to protect JNI");
+        }
+        catch (IllegalArgumentException e) {
+
+        }
+    }
+
     @Test
     public void testEnglishExpansions() {
         assertTrue(containsExpansion("123 Main St", "123 main street"));
