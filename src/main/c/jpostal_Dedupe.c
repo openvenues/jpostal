@@ -43,6 +43,26 @@ JNIEXPORT jobjectArray JNICALL Java_com_mapzen_jpostal_Dedupe_isStreetDuplicate
 }
 
 
+JNIEXPORT jobjectArray JNICALL Java_com_mapzen_jpostal_Dedupe_isNameDuplicate
+  (JNIEnv *env, jobject thisObj, jstring jName1, jstring jName2) {
+
+    const char *name1 = (*env)->GetStringUTFChars(env, jName1, 0);
+
+    const char *name2 = (*env)->GetStringUTFChars(env, jName2, 0);
+
+    libpostal_duplicate_options_t options = libpostal_get_default_duplicate_options();
+
+    libpostal_duplicate_status_t response = libpostal_is_name_duplicate(
+      (char *)name1, (char *)name2, options);
+
+    (*env)->ReleaseStringUTFChars(env, jName1, name1);
+
+    (*env)->ReleaseStringUTFChars(env, jName2, name2);
+
+    return (jint) response;
+}
+
+
 JNIEXPORT void JNICALL Java_com_mapzen_jpostal_Dedupe_teardown
   (JNIEnv *env, jclass cls) {
     libpostal_teardown_language_classifier();
