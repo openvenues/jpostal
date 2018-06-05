@@ -42,3 +42,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_mapzen_jpostal_Dedupe_isStreetDuplicate
     return (jint) response;
 }
 
+
+JNIEXPORT void JNICALL Java_com_mapzen_jpostal_Dedupe_teardown
+  (JNIEnv *env, jclass cls) {
+    libpostal_teardown_language_classifier();
+}

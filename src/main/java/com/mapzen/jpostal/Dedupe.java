@@ -22,7 +22,7 @@ public class Dedupe {
     static native synchronized void setup();
     static native synchronized void setupDataDir(String dataDir);
     private static native synchronized int isStreetDuplicate(String street1, String street2);
-    // static native synchronized void teardown();
+    static native synchronized void teardown();
 
     public int isStreetDupe(String street1, String street2) {
         return isStreetDuplicate(street1, street2);
@@ -36,7 +36,7 @@ public class Dedupe {
         }
     } 
 
-    // protected void finalize() {
-    //     teardown();
-    // }
+    protected void finalize() {
+        teardown();
+    }
 }
