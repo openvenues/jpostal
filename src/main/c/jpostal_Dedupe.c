@@ -23,43 +23,66 @@ JNIEXPORT void JNICALL Java_com_mapzen_jpostal_Dedupe_setupDataDir
     }    
 }
 
-JNIEXPORT jobjectArray JNICALL Java_com_mapzen_jpostal_Dedupe_isStreetDuplicate
-  (JNIEnv *env, jobject thisObj, jstring jStreet1, jstring jStreet2) {
+typedef libpostal_duplicate_status_t (*duplicate_function)(char *, char *, libpostal_duplicate_options_t);
 
-    const char *street1 = (*env)->GetStringUTFChars(env, jStreet1, 0);
+JNIEXPORT jint JNICALL Java_com_mapzen_jpostal_Dedupe_isDuplicate
+  (JNIEnv *env, jobject thisObj, jstring jValue1, jstring jValue2, duplicate_function func) {
 
-    const char *street2 = (*env)->GetStringUTFChars(env, jStreet2, 0);
+    const char *value1 = (*env)->GetStringUTFChars(env, jValue1, 0);
+
+    const char *value2 = (*env)->GetStringUTFChars(env, jValue2, 0);
 
     libpostal_duplicate_options_t options = libpostal_get_default_duplicate_options();
 
-    libpostal_duplicate_status_t response = libpostal_is_street_duplicate(
-      (char *)street1, (char *)street2, options);
+    libpostal_duplicate_status_t response = func((char *)value1, (char *)value2, options);
 
-    (*env)->ReleaseStringUTFChars(env, jStreet1, street1);
+    (*env)->ReleaseStringUTFChars(env, jValue1, value1);
 
-    (*env)->ReleaseStringUTFChars(env, jStreet2, street2);
+    (*env)->ReleaseStringUTFChars(env, jValue2, value2);
 
     return (jint) response;
 }
 
-
-JNIEXPORT jobjectArray JNICALL Java_com_mapzen_jpostal_Dedupe_isNameDuplicate
+JNIEXPORT jint JNICALL Java_com_mapzen_jpostal_Dedupe_isNameDuplicate
   (JNIEnv *env, jobject thisObj, jstring jName1, jstring jName2) {
+    return Java_com_mapzen_jpostal_Dedupe_isDuplicate(
+      env, thisObj, jName1, jName2, libpostal_is_name_duplicate);
+}
 
-    const char *name1 = (*env)->GetStringUTFChars(env, jName1, 0);
+JNIEXPORT jint JNICALL Java_com_mapzen_jpostal_Dedupe_isStreetDuplicate
+  (JNIEnv *env, jobject thisObj, jstring jStreet1, jstring jStreet2) {
+    return Java_com_mapzen_jpostal_Dedupe_isDuplicate(
+      env, thisObj, jStreet1, jStreet2, libpostal_is_street_duplicate);
+}
 
-    const char *name2 = (*env)->GetStringUTFChars(env, jName2, 0);
+JNIEXPORT jint JNICALL Java_com_mapzen_jpostal_Dedupe_isHouseNumberDuplicate
+  (JNIEnv *env, jobject thisObj, jstring jHouseNumber1, jstring jHouseNumber2) {
+    return Java_com_mapzen_jpostal_Dedupe_isDuplicate(
+      env, thisObj, jHouseNumber1, jHouseNumber2, libpostal_is_house_number_duplicate);
+}
 
-    libpostal_duplicate_options_t options = libpostal_get_default_duplicate_options();
+JNIEXPORT jint JNICALL Java_com_mapzen_jpostal_Dedupe_isPOBoxDuplicate
+  (JNIEnv *env, jobject thisObj, jstring jPOBox1, jstring jPOBox2) {
+    return Java_com_mapzen_jpostal_Dedupe_isDuplicate(
+      env, thisObj, jPOBox1, jPOBox2, libpostal_is_po_box_duplicate);
+}
 
-    libpostal_duplicate_status_t response = libpostal_is_name_duplicate(
-      (char *)name1, (char *)name2, options);
+JNIEXPORT jint JNICALL Java_com_mapzen_jpostal_Dedupe_isUnitDuplicate
+  (JNIEnv *env, jobject thisObj, jstring jUnit1, jstring jUnit2) {
+    return Java_com_mapzen_jpostal_Dedupe_isDuplicate(
+      env, thisObj, jUnit1, jUnit2, libpostal_is_unit_duplicate);
+}
 
-    (*env)->ReleaseStringUTFChars(env, jName1, name1);
+JNIEXPORT jint JNICALL Java_com_mapzen_jpostal_Dedupe_isFloorDuplicate
+  (JNIEnv *env, jobject thisObj, jstring jFloor1, jstring jFloor2) {
+    return Java_com_mapzen_jpostal_Dedupe_isDuplicate(
+      env, thisObj, jFloor1, jFloor2, libpostal_is_floor_duplicate);
+}
 
-    (*env)->ReleaseStringUTFChars(env, jName2, name2);
-
-    return (jint) response;
+JNIEXPORT jint JNICALL Java_com_mapzen_jpostal_Dedupe_isPostalCodeDuplicate
+  (JNIEnv *env, jobject thisObj, jstring jPostalCode1, jstring jPostalCode2) {
+    return Java_com_mapzen_jpostal_Dedupe_isDuplicate(
+      env, thisObj, jPostalCode1, jPostalCode2, libpostal_is_postal_code_duplicate);
 }
 
 
