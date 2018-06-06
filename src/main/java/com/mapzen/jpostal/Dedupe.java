@@ -1,9 +1,9 @@
 package com.mapzen.jpostal;
 
 public class Dedupe {
-    // static {
-    //     System.loadLibrary("jpostal_dedupe"); // Load native library at runtime
-    // }
+    static {
+        System.loadLibrary("jpostal_dedupe"); // Load native library at runtime
+    }
 
     private volatile static Dedupe instance = null;
 
@@ -24,6 +24,7 @@ public class Dedupe {
 
     static native synchronized void setup();
     static native synchronized void setupDataDir(String dataDir);
+
     private static native synchronized int isStreetDuplicate(String street1, String street2, DuplicateOptions options);
     private static native synchronized int isNameDuplicate(String name1, String name2, DuplicateOptions options);
     private static native synchronized int isHouseNumberDuplicate(String name1, String name2, DuplicateOptions options);
@@ -31,6 +32,7 @@ public class Dedupe {
     private static native synchronized int isUnitDuplicate(String unit1, String unit2, DuplicateOptions options);
     private static native synchronized int isFloorDuplicate(String floor1, String floor2, DuplicateOptions options);
     private static native synchronized int isPostalCodeDuplicate(String postalCode1, String postalCode2, DuplicateOptions options);
+
     static native synchronized void teardown();
 
     public DuplicateStatus isStreetDupe(String street1, String street2) {
