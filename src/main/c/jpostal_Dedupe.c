@@ -141,3 +141,107 @@ JNIEXPORT void JNICALL Java_com_mapzen_jpostal_DuplicateOptions_00024Builder_set
 
     (*env)->SetObjectField(env, builder, fid, NULL);
 }
+
+typedef libpostal_fuzzy_duplicate_status_t (*fuzzy_duplicate_function)(size_t, char **, double *, size_t, char **, double *, libpostal_fuzzy_duplicate_options_t);
+
+JNIEXPORT jdouble JNICALL Java_com_mapzen_jpostal_Dedupe_isDuplicateFuzzy(
+    JNIEnv *env, jobject thisObj,
+    jobjectArray jTokens1, jdoubleArray jScores1,
+    jobjectArray jTokens2, jdoubleArray jScores2,
+    jobject jOptions, fuzzy_duplicate_function func
+) {
+    jboolean is_copy = JNI_FALSE;
+
+    // Get arguments
+    int num_tokens1 = (*env)->GetArrayLength(env, jTokens1);
+    int num_tokens2 = (*env)->GetArrayLength(env, jTokens2);
+
+    double *scores1 = (*env)->GetDoubleArrayElements(env, jScores1, &is_copy);
+    double *scores2 = (*env)->GetDoubleArrayElements(env, jScores2, &is_copy);
+
+    const char *tokens1[num_tokens1];
+    const char *tokens2[num_tokens2];
+
+    for (int i = 0; i < num_tokens1; i++) {
+        jstring jToken = (jstring) (*env)->GetObjectArrayElement(env, jTokens1, i);
+        const char *token = (*env)->GetStringUTFChars(env, jToken, &is_copy);
+        tokens1[i] = strdup(token);
+        (*env)->ReleaseStringUTFChars(env, jToken, token);
+    }
+
+    for (int i = 0; i < num_tokens2; i++) {
+        jstring jToken = (jstring) (*env)->GetObjectArrayElement(env, jTokens2, i);
+        const char *token = (*env)->GetStringUTFChars(env, jToken, &is_copy);
+        tokens2[i] = strdup(token);
+        (*env)->ReleaseStringUTFChars(env, jToken, token);
+    }
+
+    // Build Options Argument
+    libpostal_fuzzy_duplicate_options_t options = libpostal_get_default_fuzzy_duplicate_options();
+
+    jfieldID fid;
+    jclass optionsCls = (*env)->GetObjectClass(env, jOptions);
+
+    fid = (*env)->GetFieldID(env, optionsCls, "languages", "[Ljava/lang/String;");
+    if (fid == 0) {
+        return 0.0;
+    }
+
+    jobject jLanguages = (*env)->GetObjectField(env, jOptions, fid);
+
+    size_t num_languages = 0;
+    char **languages = NULL;
+    int i;
+
+    if (jLanguages != NULL) {
+        jsize jNumLanguages = (*env)->GetArrayLength(env, jLanguages);
+
+        languages = malloc(sizeof(char *) * jNumLanguages);
+        jboolean is_copy = JNI_FALSE;
+
+        num_languages = (size_t)jNumLanguages;
+
+        for (i = 0; i < jNumLanguages; i++) {
+            jstring jLanguage = (*env)->GetObjectArrayElement(env, jLanguages, i);
+
+            const char *lang = (*env)->GetStringUTFChars(env, jLanguage, &is_copy);
+
+            char *language = strdup(lang);
+            languages[i] = language;
+
+            (*env)->ReleaseStringUTFChars(env, jLanguage, lang);
+        }
+        options.languages = languages;
+        options.num_languages = num_languages;
+    }
+
+    // Call the libpostal function
+    libpostal_fuzzy_duplicate_status_t status = func(num_tokens1, tokens1, scores1, num_tokens2, tokens2, scores2, options);
+
+    // Clean up
+    (*env)->ReleaseDoubleArrayElements(env, jScores1, scores1, 0);
+    (*env)->ReleaseDoubleArrayElements(env, jScores2, scores2, 0);
+
+    return (jdouble) status.similarity;
+}
+
+
+JNIEXPORT jdouble JNICALL Java_com_mapzen_jpostal_Dedupe_isNameDuplicateFuzzy(
+    JNIEnv *env, jobject thisObj,
+    jobjectArray jTokens1, jdoubleArray jScores1,
+    jobjectArray jTokens2, jdoubleArray jScores2,
+    jobject jOptions
+) {
+    return Java_com_mapzen_jpostal_Dedupe_isDuplicateFuzzy(env, thisObj,
+        jTokens1, jScores1, jTokens2, jScores2, jOptions, libpostal_is_name_duplicate_fuzzy);
+}
+
+JNIEXPORT jdouble JNICALL Java_com_mapzen_jpostal_Dedupe_isStreetDuplicateFuzzy(
+    JNIEnv *env, jobject thisObj,
+    jobjectArray jTokens1, jdoubleArray jScores1,
+    jobjectArray jTokens2, jdoubleArray jScores2,
+    jobject jOptions
+) {
+    return Java_com_mapzen_jpostal_Dedupe_isDuplicateFuzzy(env, thisObj,
+        jTokens1, jScores1, jTokens2, jScores2, jOptions, libpostal_is_street_duplicate_fuzzy);
+}

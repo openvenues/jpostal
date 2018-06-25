@@ -32,6 +32,8 @@ public class Dedupe {
     private static native synchronized int isUnitDuplicate(String unit1, String unit2, DuplicateOptions options);
     private static native synchronized int isFloorDuplicate(String floor1, String floor2, DuplicateOptions options);
     private static native synchronized int isPostalCodeDuplicate(String postalCode1, String postalCode2, DuplicateOptions options);
+    private static native synchronized double isNameDuplicateFuzzy(String[] tokens1, double[] scores1, String[] tokens2, double[] scores2, DuplicateOptions options);
+    private static native synchronized double isStreetDuplicateFuzzy(String[] tokens1, double[] scores1, String[] tokens2, double[] scores2, DuplicateOptions options);
 
     static native synchronized void teardown();
 
@@ -91,6 +93,21 @@ public class Dedupe {
         return DuplicateStatus.fromInt(isPostalCodeDuplicate(postalCode1, postalCode2, options));
     }
 
+    public double isNameDupeFuzzy(String[] tokens1, double[] scores1, String[] tokens2, double[] scores2) {
+        return isNameDupeFuzzyWithOptions(tokens1, scores1, tokens2, scores2, new DuplicateOptions.Builder().build());
+    }
+
+    public double isNameDupeFuzzyWithOptions(String[] tokens1, double[] scores1, String[] tokens2, double[] scores2, DuplicateOptions options) {
+        return isNameDuplicateFuzzy(tokens1, scores1, tokens2, scores2, options);
+    }
+
+    public double isStreetDupeFuzzy(String[] tokens1, double[] scores1, String[] tokens2, double[] scores2) {
+        return isStreetDupeFuzzyWithOptions(tokens1, scores1, tokens2, scores2, new DuplicateOptions.Builder().build());
+    }
+
+    public double isStreetDupeFuzzyWithOptions(String[] tokens1, double[] scores1, String[] tokens2, double[] scores2, DuplicateOptions options) {
+        return isStreetDuplicateFuzzy(tokens1, scores1, tokens2, scores2, options);
+    }
 
     protected Dedupe(String dataDir) {
         if (dataDir == null) {
