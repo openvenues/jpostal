@@ -142,6 +142,19 @@ JNIEXPORT void JNICALL Java_com_mapzen_jpostal_DuplicateOptions_00024Builder_set
     (*env)->SetObjectField(env, builder, fid, NULL);
 }
 
+jint throwError( JNIEnv *env, char *message )
+{
+    jclass exClass;
+    char *className = "java/lang/Error";
+
+    exClass = (*env)->FindClass( env, className);
+    if (exClass == NULL) {
+        return throwNoClassDefError( env, className );
+    }
+
+    return (*env)->ThrowNew( env, exClass, message );
+}
+
 typedef libpostal_fuzzy_duplicate_status_t (*fuzzy_duplicate_function)(size_t, char **, double *, size_t, char **, double *, libpostal_fuzzy_duplicate_options_t);
 
 JNIEXPORT jdouble JNICALL Java_com_mapzen_jpostal_Dedupe_isDuplicateFuzzy(
@@ -184,7 +197,7 @@ JNIEXPORT jdouble JNICALL Java_com_mapzen_jpostal_Dedupe_isDuplicateFuzzy(
 
     fid = (*env)->GetFieldID(env, optionsCls, "languages", "[Ljava/lang/String;");
     if (fid == 0) {
-        return 0.0;
+        throwError(env, "options.languages cannot be null");
     }
 
     jobject jLanguages = (*env)->GetObjectField(env, jOptions, fid);
