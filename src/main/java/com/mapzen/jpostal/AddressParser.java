@@ -10,7 +10,7 @@ public class AddressParser {
 
     static native synchronized void setup();
     static native synchronized void setupDataDir(String dataDir);
-    private native synchronized ParsedComponent[] libpostalParse(String address, ParserOptions options);
+    private native synchronized ParsedComponent[] libpostalParse(byte[] address, ParserOptions options);
     static native synchronized void teardown();
 
     private volatile static AddressParser instance = null;
@@ -43,7 +43,7 @@ public class AddressParser {
         }
 
         synchronized(this) {
-            return libpostalParse(address, options);
+            return libpostalParse(address.getBytes(), options);
         }
     } 
 
