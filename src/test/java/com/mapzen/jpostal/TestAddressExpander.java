@@ -60,5 +60,18 @@ public class TestAddressExpander {
         assertTrue(containsExpansionWithOptions("30 West Twenty-sixth St Fl No. 7", "30 west 26th street floor number 7", englishOptions));
     }
 
+    @Test
+    public void testNulTerminatedExpansion() {
+        assertTrue(containsExpansion("123 Main St\u0000", "123 main street"));
+    }
 
+    @Test
+    public void testAltNulTerminatedExpansion() {
+        assertTrue(containsExpansion("123 Main St\0", "123 main street"));
+    }
+
+    @Test
+    public void test4ByteCharacterExpansion() {
+        assertTrue(containsExpansion("123 Main St, 𠜎𠜱𠝹𠱓, 😀🤠", "123 main street 𠜎𠜱𠝹𠱓 😀🤠"));
+    }
 }
