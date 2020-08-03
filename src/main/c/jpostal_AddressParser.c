@@ -1,5 +1,6 @@
 #include <jni.h>
 #include <libpostal/libpostal.h>
+#include <string.h>
 
 JNIEXPORT void JNICALL Java_com_mapzen_jpostal_AddressParser_setup
   (JNIEnv *env, jclass cls) {
@@ -24,9 +25,19 @@ JNIEXPORT void JNICALL Java_com_mapzen_jpostal_AddressParser_setupDataDir
 }
 
 JNIEXPORT jobjectArray JNICALL Java_com_mapzen_jpostal_AddressParser_libpostalParse
-  (JNIEnv *env, jobject thisObj, jstring jAddress, jobject jOptions) {
+  (JNIEnv *env, jobject thisObj, jbyteArray jAddress, jobject jOptions) {
+    
+    jbyte* addressElements = (*env)->GetByteArrayElements(env, jAddress, NULL);
+    jsize size = (*env)->GetArrayLength(env, jAddress);
+    char address[size];
 
-    const char *address = (*env)->GetStringUTFChars(env, jAddress, 0);
+    for (int i = 0; i < size; ++i) {
+        address[i] = addressElements[i];
+    }
+    (*env) -> ReleaseByteArrayElements(env, jAddress, addressElements, 0);
+
+    address[size] = '\0';
+
 
     libpostal_address_parser_options_t options = libpostal_get_address_parser_default_options();
 
@@ -58,8 +69,6 @@ JNIEXPORT jobjectArray JNICALL Java_com_mapzen_jpostal_AddressParser_libpostalPa
 
     libpostal_address_parser_response_t *response = libpostal_parse_address((char *)address, options);
 
-    (*env)->ReleaseStringUTFChars(env, jAddress, address);
-
     if (jLanguage != NULL) {
         (*env)->ReleaseStringUTFChars(env, jLanguage, 0);
     }
@@ -71,7 +80,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_mapzen_jpostal_AddressParser_libpostalPa
     jmethodID mid;
 
     jclass parsedComponentClass = (*env)->FindClass(env, "com/mapzen/jpostal/ParsedComponent");
-    mid = (*env)->GetMethodID(env, parsedComponentClass, "<init>", "(Ljava/lang/String;Ljava/lang/String;)V");
+    mid = (*env)->GetMethodID(env, parsedComponentClass, "<init>", "([BLjava/lang/String;)V");
 
     size_t num_components = response != NULL ? response->num_components : 0;
 
@@ -82,10 +91,12 @@ JNIEXPORT jobjectArray JNICALL Java_com_mapzen_jpostal_AddressParser_libpostalPa
 
     if (num_components > 0) {
         for (size_t i = 0; i < num_components; i++) {
-            jstring jComponent = (*env)->NewStringUTF(env, response->components[i]);
             jstring jLabel = (*env)->NewStringUTF(env, response->labels[i]);
 
-            jobject jParsedComponent = (*env)->NewObject(env, parsedComponentClass, mid, jComponent, jLabel);
+            jbyteArray bytes = (*env)->NewByteArray(env,strlen(response->components[i]));
+            (*env)->SetByteArrayRegion(env, bytes, 0, strlen(response->components[i]), (jbyte*) response->components[i]);
+
+            jobject jParsedComponent = (*env)->NewObject(env, parsedComponentClass, mid, bytes, jLabel);
 
             (*env)->SetObjectArrayElement(env, ret, i, jParsedComponent);
         }

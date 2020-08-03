@@ -56,4 +56,31 @@ public class TestAddressParser {
                   new ParsedComponent("usa", "country")
                  );
     }
+
+    @Test
+    public void testParseNulTerminatedAddress() {
+        testParse("Rue du Médecin-Colonel Calbairac Toulouse France\u0000", 
+                  new ParsedComponent("rue du médecin-colonel calbairac", "road"),
+                  new ParsedComponent("toulouse", "city"),
+                  new ParsedComponent("france", "country")
+                 );
+    }
+
+    @Test
+    public void testParseAltNulTerminatedAddress() {
+        testParse("Rue du Médecin-Colonel Calbairac Toulouse France\0", 
+                  new ParsedComponent("rue du médecin-colonel calbairac", "road"),
+                  new ParsedComponent("toulouse", "city"),
+                  new ParsedComponent("france", "country")
+                 );
+    }
+
+    @Test
+    public void testParse4ByteCharacterAddress() {
+        testParse("𠜎𠜱𠝹𠱓, 😀🤠, London, UK", 
+                  new ParsedComponent("𠜎𠜱𠝹𠱓 😀🤠", "house"),
+                  new ParsedComponent("london", "city"),
+                  new ParsedComponent("uk", "country")
+                 );
+    }
 }

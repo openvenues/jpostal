@@ -26,8 +26,17 @@ JNIEXPORT void JNICALL Java_com_mapzen_jpostal_AddressExpander_setupDataDir
 }
 
 JNIEXPORT jobjectArray JNICALL Java_com_mapzen_jpostal_AddressExpander_libpostalExpand
-  (JNIEnv *env, jclass cls, jstring jAddress, jobject jOptions) {
-    const char *address = (*env)->GetStringUTFChars(env, jAddress, 0);
+  (JNIEnv *env, jclass cls, jbyteArray jAddress, jobject jOptions) {
+    jbyte* addressElements = (*env)->GetByteArrayElements(env, jAddress, NULL);
+    jsize size = (*env)->GetArrayLength(env, jAddress);
+    char address[size];
+
+    for (size_t z = 0; z < size; z++) {
+        address[z] = addressElements[z];
+    }
+    (*env) -> ReleaseByteArrayElements(env, jAddress, addressElements, 0);
+
+    address[size] = '\0';
 
     size_t num_expansions = 0;
     libpostal_normalize_options_t options = libpostal_get_default_options();
@@ -210,16 +219,17 @@ JNIEXPORT jobjectArray JNICALL Java_com_mapzen_jpostal_AddressExpander_libpostal
 
     char **expansions = libpostal_expand_address((char *)address, options, &num_expansions);
 
-    (*env)->ReleaseStringUTFChars(env, jAddress, address);
 
     jobjectArray ret = (jobjectArray)(*env)->NewObjectArray(env,
                                                             num_expansions,
-                                                            (*env)->FindClass(env, "java/lang/String"),
+                                                            (*env)->FindClass(env, "[B"),
                                                             (*env)->NewStringUTF(env, ""));
 
     if (num_expansions > 0) {
         for (size_t i = 0; i < num_expansions; i++) {
-            (*env)->SetObjectArrayElement(env, ret, i, (*env)->NewStringUTF(env, expansions[i]));
+            jbyteArray bytes = (*env)->NewByteArray(env,strlen(expansions[i]));
+            (*env)->SetByteArrayRegion(env, bytes, 0, strlen(expansions[i]), (jbyte*) expansions[i]);
+            (*env)->SetObjectArrayElement(env, ret, i, bytes);
         }
 
     }

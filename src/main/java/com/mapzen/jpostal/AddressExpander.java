@@ -2,6 +2,8 @@ package com.mapzen.jpostal;
 
 import com.mapzen.jpostal.ExpanderOptions;
 
+import java.nio.charset.StandardCharsets;
+
 public class AddressExpander {
     static {
         System.loadLibrary("jpostal_expander"); // Load native library at runtime
@@ -27,7 +29,7 @@ public class AddressExpander {
 
     static native synchronized void setup();
     static native synchronized void setupDataDir(String dataDir);
-    private static native synchronized String[] libpostalExpand(String address, ExpanderOptions options);
+    private static native synchronized byte[][] libpostalExpand(byte[] address, ExpanderOptions options);
     static native synchronized void teardown();
 
     public String[] expandAddress(String address) {
@@ -43,7 +45,12 @@ public class AddressExpander {
         }
 
         synchronized(this) {
-            return libpostalExpand(address, options);
+            byte[][] expansionBytes = libpostalExpand(address.getBytes(), options);
+            String expansions[] = new String[expansionBytes.length];
+            for (int i = 0; i < expansionBytes.length; i++) {
+                expansions[i] = new String(expansionBytes[i], StandardCharsets.UTF_8);
+            }
+            return expansions;
         }
     }
 
