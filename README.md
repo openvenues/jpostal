@@ -96,7 +96,7 @@ Usage in a Java project
 -----------------------
 
 The JNI portion of jpostal builds shared object files (.so on Linux, .jniLib on Mac) that need to be on java.library.path. 
-After running ```gradle assemble``` the .so/.jniLib files can be found under ```./libs/jpostal/shared``` in the build dir. For running the tests, we set java.library.path explicitly [here](https://github.com/Qualytics/jpostal/blob/master/build.gradle#L63.
+After running ```gradle assemble``` the .so/.jniLib files can be found under ```./libs/jpostal/shared``` in the build dir. For running the tests, we set java.library.path explicitly [here](https://github.com/Qualytics/jpostal/blob/master/build.gradle#L63).
 
 
 Compatibility
