@@ -7,18 +7,19 @@ jobs:
   build-gradle-project:
     runs-on: ubuntu-latest
     steps:
-#      - uses: actions/checkout@v4
-#        with:
-#          repository: openvenues/libpostal
-#          path: libpostal
-#      - name: Install libtool
-#        run: |
-#          ./bootstrap.sh
-#          mkdir data_dir
-#          ./configure --datadir=`pwd`/data_dir MODEL=senzing
-#          sudo make -j4
-#          sudo make install
-#          sudo ldconfig
+      - uses: actions/checkout@v4
+        with:
+          repository: openvenues/libpostal
+          path: libpostal
+      - name: Install libtool
+        run: |
+          cd libpostal
+          ./bootstrap.sh
+          mkdir data_dir
+          ./configure --datadir=`pwd`/data_dir MODEL=senzing
+          sudo make -j4
+          sudo make install
+          sudo ldconfig
       - uses: actions/checkout@v4
         with:
           repository: Qualytics/jpostal
