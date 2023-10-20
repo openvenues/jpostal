@@ -4,7 +4,7 @@ import com.mapzen.jpostal.ExpanderOptions;
 
 public class AddressExpander {
     static {
-        System.loadLibrary("jpostal_expander"); // Load native library at runtime
+        System.loadLibrary("jpostal"); // Load native library at runtime
     }
 
     private volatile static AddressExpander instance = null;
