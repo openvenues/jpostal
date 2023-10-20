@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install libtool
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4
         with:
           repository: openvenues/libpostal
           path: libpostal
