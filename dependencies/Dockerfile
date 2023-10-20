@@ -3,6 +3,7 @@
 #   to support automated builds of the jpostal project
 #
 # Note: An image built with this dockerfile is available publicly on Dockerhub as qualytics42/qualytics-jpostal-base:0.1.0
+#  built with `docker buildx build --platform linux/arm64,linux/amd64 .` on a M1 Mac
 #
 #
 # Licensed to the Apache Software Foundation (ASF) under one or more
