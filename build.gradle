@@ -30,7 +30,6 @@ model {
                     cCompiler.args '-mmacosx-version-min=10.9'
                     linker.args '-mmacosx-version-min=10.9'
                     linker.args '-stdlib=libc++'
-                    linker.args '-lpostal'  // Link with libpostal
                 } else if (targetPlatform.operatingSystem.linux) {
                     cCompiler.args '-I', "${jvmHome}/include"
                     cCompiler.args '-I', "${jvmHome}/include/linux"
@@ -42,6 +41,7 @@ model {
                     cCompiler.args '-I', "${jvmHome}/include"
                     cCompiler.args '-I', "${jvmHome}/include/freebsd"
                 }
+                linker.args '-lpostal'  // Link with libpostal
             }
         }
     }
