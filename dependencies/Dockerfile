@@ -23,11 +23,13 @@
 #
 FROM cimg/openjdk:17.0
 
-RUN set -ex; \
-    sudo apt-get update; \
-    sudo apt-get install -y build-essential curl autoconf automake libtool pkg-config git zip;
+USER 0
 
 RUN set -ex; \
+    mkdir -p /home; \
+    cd /home; \
+    apt-get update; \
+    apt-get install -y build-essential curl autoconf automake libtool pkg-config git zip; \
     git clone https://github.com/openvenues/libpostal; \
     cd libpostal; \
     ./bootstrap.sh; \
@@ -36,5 +38,8 @@ RUN set -ex; \
     # sse2 is not available when building on M1 Mac
     ./configure --datadir=`pwd`/data_dir MODEL=senzing --disable-sse2; \
     make -j4; \
-    sudo make install; \
-    sudo ldconfig;
+    make install; \
+    chown -R circleci ../libpostal \
+    ldconfig;
+
+USER circleci
