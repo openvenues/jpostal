@@ -21,11 +21,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-FROM eclipse-temurin:17-jdk
+FROM cimg/openjdk:17.0
 
 RUN set -ex; \
-    apt-get update; \
-    apt-get install -y build-essential curl autoconf automake libtool pkg-config git;
+    sudo apt-get update; \
+    sudo apt-get install -y build-essential curl autoconf automake libtool pkg-config git zip;
 
 RUN set -ex; \
     git clone https://github.com/openvenues/libpostal; \
@@ -36,7 +36,5 @@ RUN set -ex; \
     # sse2 is not available when building on M1 Mac
     ./configure --datadir=`pwd`/data_dir MODEL=senzing --disable-sse2; \
     make -j4; \
-    make install;
-
-RUN set -ex; \
-    ldconfig;
+    sudo make install; \
+    sudo ldconfig;
