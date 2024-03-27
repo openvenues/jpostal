@@ -6,7 +6,7 @@ public class ParserOptions {
 
     public static class Builder {
         static {
-            System.loadLibrary("jpostal_parser"); // Load native library at runtime
+            System.loadLibrary("jpostal"); // Load native library at runtime
         }
 
         private String language;

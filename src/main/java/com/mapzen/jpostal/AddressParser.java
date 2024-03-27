@@ -5,7 +5,7 @@ import com.mapzen.jpostal.ParserOptions;
 
 public class AddressParser {
     static {
-        System.loadLibrary("jpostal_parser"); // Load native library at runtime
+        System.loadLibrary("jpostal"); // Load native library at runtime
     }
 
     static native synchronized void setup();

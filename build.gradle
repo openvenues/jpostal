@@ -1,19 +1,64 @@
-apply plugin: 'java'
+import org.gradle.internal.jvm.Jvm
+
+plugins {
+    id 'c'
+    id 'java'
+    id 'application'
+}
 
 repositories {
     mavenCentral()
 }
 
-task buildJniLib(type:Exec) {
-  commandLine './build.sh'
+sourceSets.main.java.srcDirs = ["src/main/java"]
+sourceSets.test.java.srcDirs = ["src/test/java"]
+
+model {
+    platforms {
+        x64 {
+            architecture "x86_64"
+        }
+    }
+
+    components {
+        jpostal(NativeLibrarySpec) {
+            binaries.all {
+                def jvmHome = org.gradle.internal.jvm.Jvm.current().javaHome
+                if (targetPlatform.operatingSystem.macOsX) {
+                    cCompiler.args '-I', "${jvmHome}/include"
+                    cCompiler.args '-I', "${jvmHome}/include/darwin"
+                    cCompiler.args '-mmacosx-version-min=10.9'
+                    linker.args '-mmacosx-version-min=10.9'
+                    linker.args '-stdlib=libc++'
+                } else if (targetPlatform.operatingSystem.linux) {
+                    cCompiler.args '-I', "${jvmHome}/include"
+                    cCompiler.args '-I', "${jvmHome}/include/linux"
+                    cCompiler.args '-D_FILE_OFFSET_BITS=64'
+                } else if (targetPlatform.operatingSystem.windows) {
+                    cCompiler.args "-I${jvmHome}/include"
+                    cCompiler.args "-I${jvmHome}/include/win32"
+                } else if (targetPlatform.operatingSystem.freeBSD) {
+                    cCompiler.args '-I', "${jvmHome}/include"
+                    cCompiler.args '-I', "${jvmHome}/include/freebsd"
+                }
+                linker.args '-lpostal'  // Link with libpostal
+            }
+        }
+    }
 }
 
-compileJava.dependsOn(buildJniLib)
+classes.dependsOn 'jpostalSharedLibrary'
+
+
+application {
+    applicationDefaultJvmArgs = ["-Djava.library.path=" + file("${buildDir}/libs/jpostal/shared").absolutePath]
+}
+
 
 dependencies {
-    testCompile 'junit:junit:4.+'
+    testImplementation 'junit:junit:4.+'
 }
 
 tasks.withType(Test) {
-    systemProperty "java.library.path", "src/main/jniLibs"
+    systemProperty "java.library.path", file("${buildDir}/libs/jpostal/shared").absolutePath
 }
