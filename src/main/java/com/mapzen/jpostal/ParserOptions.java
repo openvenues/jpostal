@@ -5,19 +5,10 @@ public class ParserOptions {
     private String country;
 
     public static class Builder {
-        static {
-            System.loadLibrary("jpostal"); // Load native library at runtime
-        }
-
         private String language;
         private String country;
 
-        private native synchronized void setDefaultOptions();
-
-        public Builder() {
-            super();
-            setDefaultOptions();
-        }
+        native synchronized void setDefaultOptions();
 
         public Builder language(String language) {
             this.language = language;
@@ -38,5 +29,4 @@ public class ParserOptions {
         this.language = builder.language;
         this.country = builder.country;
     }
-
 }

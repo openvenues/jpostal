@@ -176,10 +176,6 @@ public class ExpanderOptions {
     }
 
     public static class Builder {
-        static {
-            System.loadLibrary("jpostal"); // Load native library at runtime
-        }
-
         private String[] languages;
         private short addressComponents;
         private boolean latinAscii;
@@ -201,12 +197,7 @@ public class ExpanderOptions {
         private boolean expandNumex;
         private boolean romanNumerals;
 
-        private native synchronized void setDefaultOptions();
-
-        public Builder() {
-            super();
-            setDefaultOptions();
-        }
+        native synchronized void setDefaultOptions();
 
         public Builder languages(String[] languages) { 
             this.languages = languages;

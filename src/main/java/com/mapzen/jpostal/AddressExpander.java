@@ -3,19 +3,23 @@ package com.mapzen.jpostal;
 import com.mapzen.jpostal.ExpanderOptions;
 
 public class AddressExpander {
-    static {
-        System.loadLibrary("jpostal"); // Load native library at runtime
-    }
-
     private volatile static AddressExpander instance = null;
 
+    private final Config config;
+
     public static AddressExpander getInstanceDataDir(String dataDir) {
+        return getInstanceConfig(Config.builder().dataDir(dataDir).build());
+    }
+
+    public static AddressExpander getInstanceConfig(Config config) {
         if (instance == null) {
-            synchronized(AddressExpander.class) {
+            synchronized(AddressParser.class) {
                 if (instance == null) {
-                    instance = new AddressExpander(dataDir);
+                    instance = new AddressExpander(config);
                 }
             }
+        } else if (!instance.config.equals(config)) {
+            throw Config.mismatchException(instance.config, config);
         }
         return instance;
     }
@@ -47,14 +51,21 @@ public class AddressExpander {
         }
     }
 
-    protected AddressExpander(String dataDir) {
+    protected AddressExpander(Config config) {
+        config.loadLibrary();
+        new ExpanderOptions.Builder().setDefaultOptions();
+
+        final String dataDir = config.getDataDir();
         if (dataDir == null) {
             setup();
         } else {
             setupDataDir(dataDir);
         }
+
+        this.config = config;
     } 
 
+    @Override
     protected void finalize() {
         teardown();
     }
