@@ -1,8 +1,7 @@
 package com.mapzen.jpostal;
 
-import com.mapzen.jpostal.ExpanderOptions;
 
-public class AddressExpander {
+public class AddressExpander implements AutoCloseable {
     static {
         System.loadLibrary("jpostal"); // Load native library at runtime
     }
@@ -53,9 +52,10 @@ public class AddressExpander {
         } else {
             setupDataDir(dataDir);
         }
-    } 
+    }
 
-    protected void finalize() {
+    @Override
+    public void close() {
         teardown();
     }
 }

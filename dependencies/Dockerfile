@@ -39,7 +39,6 @@ RUN set -ex; \
     ./configure --datadir=`pwd`/data_dir MODEL=senzing --disable-sse2; \
     make -j4; \
     make install; \
-    chown -R circleci ../libpostal \
-    ldconfig;
+    chown -R circleci ../libpostal;
 
 USER circleci

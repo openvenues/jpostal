@@ -1,9 +1,6 @@
 package com.mapzen.jpostal;
 
-import com.mapzen.jpostal.ParsedComponent;
-import com.mapzen.jpostal.ParserOptions;
-
-public class AddressParser {
+public class AddressParser implements AutoCloseable {
     static {
         System.loadLibrary("jpostal"); // Load native library at runtime
     }
@@ -25,7 +22,7 @@ public class AddressParser {
         }
         return instance;
     }
-        
+
     public static AddressParser getInstance() {
         return getInstanceDataDir(null);
     }
@@ -39,13 +36,13 @@ public class AddressParser {
             throw new NullPointerException("String address must not be null");
         }
         if (options == null) {
-            throw new NullPointerException("ParserOptions options must not be null");
+            throw new NullPointerException("io.qualytics.sparqy.jpostal.ParserOptions options must not be null");
         }
 
         synchronized(this) {
             return libpostalParse(address, options);
         }
-    } 
+    }
 
     protected AddressParser(String dataDir) {
         if (dataDir == null) {
@@ -55,7 +52,8 @@ public class AddressParser {
         }
     }
 
-    protected void finalize() {
+    @Override
+    public void close() {
         teardown();
     }
 
