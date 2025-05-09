@@ -1,4 +1,5 @@
 import org.gradle.internal.jvm.Jvm
+import org.gradle.nativeplatform.toolchain.*
 
 plugins {
     id 'c'
@@ -14,9 +15,21 @@ sourceSets.main.java.srcDirs = ["src/main/java"]
 sourceSets.test.java.srcDirs = ["src/test/java"]
 
 model {
+    toolChains {
+        gcc(Gcc){
+            target("linux_aarch64") {
+                cCompiler.executable = "/usr/bin/gcc"
+                cppCompiler.executable = "/usr/bin/g++"
+            }
+        }
+    }
     platforms {
         x64 {
             architecture "x86_64"
+        }
+        linux_aarch64 {
+            architecture "arm64"
+            operatingSystem "linux"
         }
     }
 
