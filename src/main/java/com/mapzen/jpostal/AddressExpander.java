@@ -5,7 +5,7 @@ import com.mapzen.jpostal.ExpanderOptions;
 public class AddressExpander {
     private volatile static AddressExpander instance = null;
 
-    private final Config config;
+    private final LibPostal libPostal;
 
     public static AddressExpander getInstanceDataDir(String dataDir) {
         return getInstanceConfig(Config.builder().dataDir(dataDir).build());
@@ -15,11 +15,11 @@ public class AddressExpander {
         if (instance == null) {
             synchronized(AddressParser.class) {
                 if (instance == null) {
-                    instance = new AddressExpander(config);
+                    instance = new AddressExpander(LibPostal.getInstance(config));
                 }
             }
-        } else if (!instance.config.equals(config)) {
-            throw Config.mismatchException(instance.config, config);
+        } else if (!instance.libPostal.getConfig().equals(config)) {
+            throw Config.mismatchException(instance.libPostal.getConfig(), config);
         }
         return instance;
     }
@@ -28,11 +28,14 @@ public class AddressExpander {
         return getInstanceDataDir(null);
     }
 
+    public static boolean isInitialized() {
+        return instance != null;
+    }
 
-    static native synchronized void setup();
-    static native synchronized void setupDataDir(String dataDir);
-    private static native synchronized String[] libpostalExpand(String address, ExpanderOptions options);
-    static native synchronized void teardown();
+    private static native void setup();
+    private static native void setupDataDir(String dataDir);
+    private static native String[] libpostalExpand(String address, ExpanderOptions options);
+    private static native void teardown();
 
     public String[] expandAddress(String address) {
         return expandAddressWithOptions(address, new ExpanderOptions.Builder().build());
@@ -46,27 +49,32 @@ public class AddressExpander {
             throw new NullPointerException("ExpanderOptions options must not be null");
         }
 
-        synchronized(this) {
+        synchronized(AddressExpander.class) {
             return libpostalExpand(address, options);
         }
     }
 
-    protected AddressExpander(Config config) {
-        config.loadLibrary();
-        new ExpanderOptions.Builder().setDefaultOptions();
-
-        final String dataDir = config.getDataDir();
-        if (dataDir == null) {
-            setup();
-        } else {
-            setupDataDir(dataDir);
+    AddressExpander(final LibPostal libPostal) {
+        if (libPostal == null) {
+            throw new NullPointerException("LibPostal must not be null");
         }
 
-        this.config = config;
+        this.libPostal = libPostal;
+
+        final String dataDir = libPostal.getConfig().getDataDir();
+        synchronized (this.libPostal) {
+            if (dataDir == null) {
+                setup();
+            } else {
+                setupDataDir(dataDir);
+            }
+        }
     } 
 
     @Override
     protected void finalize() {
-        teardown();
+        synchronized (libPostal) {
+            teardown();
+        }
     }
 }

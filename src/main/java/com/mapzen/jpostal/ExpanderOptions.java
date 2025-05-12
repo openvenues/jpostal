@@ -197,7 +197,17 @@ public class ExpanderOptions {
         private boolean expandNumex;
         private boolean romanNumerals;
 
-        native synchronized void setDefaultOptions();
+        private native void setDefaultOptions();
+
+        public Builder() {
+            if (!AddressExpander.isInitialized()) {
+                throw new IllegalStateException("Initialize AddressExpander through getInstance* before creating an ExpanderOptions builder");
+            }
+
+            synchronized (ExpanderOptions.class) {
+                setDefaultOptions(); // Load default options from libpostal into this Builder.
+            }
+        }
 
         public Builder languages(String[] languages) { 
             this.languages = languages;
@@ -308,14 +318,14 @@ public class ExpanderOptions {
     private ExpanderOptions(Builder builder) {
         languages = builder.languages;
         addressComponents = builder.addressComponents;
-        latinAscii = builder.latinAscii;
+        latinAscii = builder.latinAscii; // FIXME: Duplicated
         transliterate = builder.transliterate;
         stripAccents = builder.stripAccents;
         decompose = builder.decompose;
         lowercase = builder.lowercase;
         trimString = builder.trimString;
         dropParentheticals = builder.dropParentheticals;
-        latinAscii = builder.latinAscii;
+        latinAscii = builder.latinAscii; // FIXME: Duplicated
         replaceNumericHyphens = builder.replaceNumericHyphens;
         deleteNumericHyphens = builder.deleteNumericHyphens;
         splitAlphaFromNumeric = builder.splitAlphaFromNumeric;

@@ -19,6 +19,9 @@ public class TestAddressExpander {
         AddressExpander expander = AddressExpander.getInstance();
         String[] expansions = expander.expandAddress(address);
 
+        System.err.println(String.format("address=%s   expected=%s   expansions=%s", address, output, java.util.Arrays.toString(expansions)));
+
+
         return expansionInOutput(expansions, output);
     }
 
@@ -66,6 +69,8 @@ public class TestAddressExpander {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
             AddressExpander.getInstanceDataDir("foo");
         });
+
+        System.err.println("THROWN = " + thrown);
 
         assertEquals(
                 "Config mismatch: initialized instance uses [Config{dataDir=null,libraryFile=null}], but requested [Config{dataDir=foo,libraryFile=null}]",

@@ -4,14 +4,14 @@ import com.mapzen.jpostal.ParsedComponent;
 import com.mapzen.jpostal.ParserOptions;
 
 public class AddressParser {
-    static native synchronized void setup();
-    static native synchronized void setupDataDir(String dataDir);
-    private native synchronized ParsedComponent[] libpostalParse(String address, ParserOptions options);
-    static native synchronized void teardown();
+    private static native void setup();
+    private static native void setupDataDir(String dataDir);
+    private native ParsedComponent[] libpostalParse(String address, ParserOptions options);
+    private static native void teardown();
 
     private volatile static AddressParser instance = null;
 
-    private final Config config;
+    private final LibPostal libPostal;
 
     public static AddressParser getInstanceDataDir(String dataDir) {
         return getInstanceConfig(Config.builder().dataDir(dataDir).build());
@@ -21,17 +21,21 @@ public class AddressParser {
         if (instance == null) {
             synchronized(AddressParser.class) {
                 if (instance == null) {
-                    instance = new AddressParser(config);
+                    instance = new AddressParser(LibPostal.getInstance(config));
                 }
             }
-        } else if (!instance.config.equals(config)) {
-            throw Config.mismatchException(instance.config, config);
+        } else if (!instance.libPostal.getConfig().equals(config)) {
+            throw Config.mismatchException(instance.libPostal.getConfig(), config);
         }
         return instance;
     }
         
     public static AddressParser getInstance() {
         return getInstanceDataDir(null);
+    }
+
+    public static boolean isInitialized() {
+        return instance != null;
     }
 
     public ParsedComponent[] parseAddress(String address) {
@@ -46,27 +50,32 @@ public class AddressParser {
             throw new NullPointerException("ParserOptions options must not be null");
         }
 
-        synchronized(this) {
+        synchronized(AddressParser.class) {
             return libpostalParse(address, options);
         }
     } 
 
-    protected AddressParser(Config config) {
-        config.loadLibrary();
-        new ParserOptions.Builder().setDefaultOptions();
-
-        final String dataDir = config.getDataDir();
-        if (dataDir == null) {
-            setup();
-        } else {
-            setupDataDir(dataDir);
+    AddressParser(final LibPostal libPostal) {
+        if (libPostal == null) {
+            throw new NullPointerException("LibPostal must not be null");
         }
 
-        this.config = config;
+        this.libPostal = libPostal;
+
+        final String dataDir = libPostal.getConfig().getDataDir();
+        synchronized (this.libPostal) {
+            if (dataDir == null) {
+                setup();
+            } else {
+                setupDataDir(dataDir);
+            }
+        }
     }
 
     @Override
     protected void finalize() {
-        teardown();
+        synchronized (libPostal) {
+            teardown();
+        }
     }
 }
