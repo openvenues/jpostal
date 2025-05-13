@@ -1,22 +1,23 @@
 package com.mapzen.jpostal;
 
 public class ParserOptions {
-    private String language;
-    private String country;
+    private final String language;
+    private final String country;
 
     public static class Builder {
-        static {
-            System.loadLibrary("jpostal"); // Load native library at runtime
-        }
-
         private String language;
         private String country;
 
-        private native synchronized void setDefaultOptions();
+        private native void setDefaultOptions();
 
         public Builder() {
-            super();
-            setDefaultOptions();
+            if (!AddressParser.isInitialized()) {
+                throw new IllegalStateException("Initialize AddressParser through getInstance* before creating a ParserOptions Builder");
+            }
+
+            synchronized (ParserOptions.class) {
+                setDefaultOptions(); // Load default options from libpostal into this Builder.
+            }
         }
 
         public Builder language(String language) {
@@ -38,5 +39,4 @@ public class ParserOptions {
         this.language = builder.language;
         this.country = builder.country;
     }
-
 }

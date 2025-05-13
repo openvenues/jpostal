@@ -2,8 +2,7 @@ package com.mapzen.jpostal;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class TestAddressExpander {
     private static boolean expansionInOutput(String[] expansions, String output) {
@@ -19,6 +18,9 @@ public class TestAddressExpander {
     private static boolean containsExpansion(String address, String output) {
         AddressExpander expander = AddressExpander.getInstance();
         String[] expansions = expander.expandAddress(address);
+
+        System.err.println(String.format("address=%s   expected=%s   expansions=%s", address, output, java.util.Arrays.toString(expansions)));
+
 
         return expansionInOutput(expansions, output);
     }
@@ -60,5 +62,35 @@ public class TestAddressExpander {
         assertTrue(containsExpansionWithOptions("30 West Twenty-sixth St Fl No. 7", "30 west 26th street floor number 7", englishOptions));
     }
 
+    @Test()
+    public void testConfigMismatchDataDir() {
+        AddressExpander.getInstance();
 
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            AddressExpander.getInstanceDataDir("foo");
+        });
+
+        System.err.println("THROWN = " + thrown);
+
+        assertEquals(
+                "Config mismatch: initialized instance uses [Config{dataDir=null,libraryFile=null}], but requested [Config{dataDir=foo,libraryFile=null}]",
+                thrown.getMessage()
+        );
+        assertNull(thrown.getCause());
+    }
+
+    @Test()
+    public void testConfigMismatchLibraryFile() {
+        AddressExpander.getInstance();
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            AddressExpander.getInstanceConfig(Config.builder().libraryFile("foo").build());
+        });
+
+        assertEquals(
+                "Config mismatch: initialized instance uses [Config{dataDir=null,libraryFile=null}], but requested [Config{dataDir=null,libraryFile=foo}]",
+                thrown.getMessage()
+        );
+        assertNull(thrown.getCause());
+    }
 }

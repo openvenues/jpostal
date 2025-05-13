@@ -4,22 +4,22 @@
 JNIEXPORT void JNICALL Java_com_mapzen_jpostal_AddressParser_setup
   (JNIEnv *env, jclass cls) {
 
-    if (!libpostal_setup() || !libpostal_setup_parser()) {
+    if (!libpostal_setup_parser()) {
         jclass exceptionClass;
         exceptionClass = (*env)->FindClass(env, "java/lang/RuntimeException");
         if (exceptionClass == NULL) return;
-        (*env)->ThrowNew(env, exceptionClass, "Error loading libpostal parser modules\n");
+        (*env)->ThrowNew(env, exceptionClass, "Error loading libpostal parser modules");
     }
 }
 
 JNIEXPORT void JNICALL Java_com_mapzen_jpostal_AddressParser_setupDataDir
   (JNIEnv *env, jclass cls, jstring jDataDir) {
     const char *datadir = (*env)->GetStringUTFChars(env, jDataDir, 0);
-    if (!libpostal_setup_datadir((char *)datadir) || !libpostal_setup_parser_datadir((char *)datadir)) {
+    if (!libpostal_setup_parser_datadir((char *)datadir)) {
         jclass exceptionClass;
         exceptionClass = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
         if (exceptionClass == NULL) return;
-        (*env)->ThrowNew(env, exceptionClass, "Error loading libpostal parser modules\n");
+        (*env)->ThrowNew(env, exceptionClass, "Error loading libpostal parser modules with data dir");
     }    
 }
 
@@ -129,4 +129,3 @@ JNIEXPORT void JNICALL Java_com_mapzen_jpostal_ParserOptions_00024Builder_setDef
     (*env)->SetObjectField(env, builder, fid, NULL);
 
 }
-
