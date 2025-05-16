@@ -102,7 +102,9 @@ After running ```gradle assemble``` the .so/.jniLib files can be found under ```
 Compatibility
 -------------
 
-Building jpostal is known to work on Linux and Mac OSX (including Mac silicon). 
+-  Building jpostal is known to work on Linux and Mac OSX (including Mac silicon).
+-  Requires JDK 16 or later. Make sure JAVA_HOME points to JDK 16+. 
+
 
 Tests
 -----
