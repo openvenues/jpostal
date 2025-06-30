@@ -1,7 +1,14 @@
 package com.mapzen.jpostal;
 
+import java.lang.ref.Cleaner;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 final class LibPostal {
+    private static final Cleaner cleaner = Cleaner.create();
+    private static final AtomicBoolean isShutdown = new AtomicBoolean(false);
+    
     private final Config config;
+    private final Cleaner.Cleanable cleanable;
 
     private LibPostal(final Config config) {
         if (config == null) {
@@ -18,6 +25,17 @@ final class LibPostal {
         }
 
         this.config = config;
+        
+        // Register cleanup
+        this.cleanable = cleaner.register(this, () -> {
+            if (isShutdown.compareAndSet(false, true)) {
+                try {
+                    teardown();
+                } catch (Exception e) {
+                    System.err.println("LibPostal teardown error: " + e.getMessage());
+                }
+            }
+        });
     }
 
     Config getConfig() {
@@ -41,10 +59,5 @@ final class LibPostal {
            throw Config.mismatchException(instance.config, config);
        }
        return instance;
-    }
-
-    @Override
-    protected void finalize() {
-        teardown();
     }
 }

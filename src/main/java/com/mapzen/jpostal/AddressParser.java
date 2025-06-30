@@ -2,16 +2,16 @@ package com.mapzen.jpostal;
 
 import com.mapzen.jpostal.ParsedComponent;
 import com.mapzen.jpostal.ParserOptions;
+import java.lang.ref.Cleaner;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AddressParser {
-    private static native void setup();
-    private static native void setupDataDir(String dataDir);
-    private native ParsedComponent[] libpostalParse(String address, ParserOptions options);
-    private static native void teardown();
-
+    private static final Cleaner cleaner = Cleaner.create();
+    private static final AtomicBoolean isShutdown = new AtomicBoolean(false);
+    
     private volatile static AddressParser instance = null;
-
     private final LibPostal libPostal;
+    private final Cleaner.Cleanable cleanable;
 
     public static AddressParser getInstanceDataDir(String dataDir) {
         return getInstanceConfig(Config.builder().dataDir(dataDir).build());
@@ -35,8 +35,13 @@ public class AddressParser {
     }
 
     public static boolean isInitialized() {
-        return instance != null;
+        return instance != null && !isShutdown.get();
     }
+
+    private static native void setup();
+    private static native void setupDataDir(String dataDir);
+    private native ParsedComponent[] libpostalParse(String address, ParserOptions options);
+    private static native void teardown();
 
     public ParsedComponent[] parseAddress(String address) {
         return parseAddressWithOptions(address, new ParserOptions.Builder().build());
@@ -48,6 +53,10 @@ public class AddressParser {
         }
         if (options == null) {
             throw new NullPointerException("ParserOptions options must not be null");
+        }
+        
+        if (isShutdown.get()) {
+            throw new IllegalStateException("AddressParser has been shut down");
         }
 
         synchronized(AddressParser.class) {
@@ -70,12 +79,18 @@ public class AddressParser {
                 setupDataDir(dataDir);
             }
         }
-    }
-
-    @Override
-    protected void finalize() {
-        synchronized (libPostal) {
-            teardown();
-        }
+        
+        // Register cleanup
+        this.cleanable = cleaner.register(this, () -> {
+            if (isShutdown.compareAndSet(false, true)) {
+                try {
+                    synchronized (libPostal) {
+                        teardown();
+                    }
+                } catch (Exception e) {
+                    System.err.println("AddressParser cleaner error: " + e.getMessage());
+                }
+            }
+        });
     }
 }

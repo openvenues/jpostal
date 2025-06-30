@@ -1,11 +1,16 @@
 package com.mapzen.jpostal;
 
 import com.mapzen.jpostal.ExpanderOptions;
+import java.lang.ref.Cleaner;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AddressExpander {
+    private static final Cleaner cleaner = Cleaner.create();
+    private static final AtomicBoolean isShutdown = new AtomicBoolean(false);
+    
     private volatile static AddressExpander instance = null;
-
     private final LibPostal libPostal;
+    private final Cleaner.Cleanable cleanable;
 
     public static AddressExpander getInstanceDataDir(String dataDir) {
         return getInstanceConfig(Config.builder().dataDir(dataDir).build());
@@ -13,7 +18,7 @@ public class AddressExpander {
 
     public static AddressExpander getInstanceConfig(Config config) {
         if (instance == null) {
-            synchronized(AddressParser.class) {
+            synchronized(AddressExpander.class) {
                 if (instance == null) {
                     instance = new AddressExpander(LibPostal.getInstance(config));
                 }
@@ -29,7 +34,7 @@ public class AddressExpander {
     }
 
     public static boolean isInitialized() {
-        return instance != null;
+        return instance != null && !isShutdown.get();
     }
 
     private static native void setup();
@@ -47,6 +52,10 @@ public class AddressExpander {
         }
         if (options == null) {
             throw new NullPointerException("ExpanderOptions options must not be null");
+        }
+        
+        if (isShutdown.get()) {
+            throw new IllegalStateException("AddressExpander has been shut down");
         }
 
         synchronized(AddressExpander.class) {
@@ -69,12 +78,18 @@ public class AddressExpander {
                 setupDataDir(dataDir);
             }
         }
-    } 
-
-    @Override
-    protected void finalize() {
-        synchronized (libPostal) {
-            teardown();
-        }
+        
+        // Register cleanup
+        this.cleanable = cleaner.register(this, () -> {
+            if (isShutdown.compareAndSet(false, true)) {
+                try {
+                    synchronized (libPostal) {
+                        teardown();
+                    }
+                } catch (Exception e) {
+                    System.err.println("AddressExpander cleaner error: " + e.getMessage());
+                }
+            }
+        });
     }
 }
