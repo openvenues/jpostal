@@ -4,7 +4,6 @@ import java.lang.ref.Cleaner;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 final class LibPostal {
-    private static final Cleaner cleaner = Cleaner.create();
     private static final AtomicBoolean isShutdown = new AtomicBoolean(false);
     
     private final Config config;
@@ -25,17 +24,7 @@ final class LibPostal {
         }
 
         this.config = config;
-        
-        // Register cleanup
-        this.cleanable = cleaner.register(this, () -> {
-            if (isShutdown.compareAndSet(false, true)) {
-                try {
-                    teardown();
-                } catch (Exception e) {
-                    System.err.println("LibPostal teardown error: " + e.getMessage());
-                }
-            }
-        });
+        this.cleanable = Utils.registerForCleanup(this, new CleanupAction(isShutdown));
     }
 
     Config getConfig() {
@@ -59,5 +48,24 @@ final class LibPostal {
            throw Config.mismatchException(instance.config, config);
        }
        return instance;
+    }
+    
+    private static class CleanupAction implements Runnable {
+        private final AtomicBoolean isShutdown;
+        
+        CleanupAction(AtomicBoolean isShutdown) {
+            this.isShutdown = isShutdown;
+        }
+        
+        @Override
+        public void run() {
+            if (isShutdown.compareAndSet(false, true)) {
+                try {
+                    teardown();
+                } catch (Exception e) {
+                    System.err.println("LibPostal teardown error: " + e.getMessage());
+                }
+            }
+        }
     }
 }

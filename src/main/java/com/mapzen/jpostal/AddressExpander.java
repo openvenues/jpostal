@@ -5,7 +5,6 @@ import java.lang.ref.Cleaner;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AddressExpander {
-    private static final Cleaner cleaner = Cleaner.create();
     private static final AtomicBoolean isShutdown = new AtomicBoolean(false);
     
     private volatile static AddressExpander instance = null;
@@ -79,8 +78,20 @@ public class AddressExpander {
             }
         }
         
-        // Register cleanup
-        this.cleanable = cleaner.register(this, () -> {
+        this.cleanable = Utils.registerForCleanup(this, new CleanupAction(isShutdown, libPostal));
+    }
+    
+    private static class CleanupAction implements Runnable {
+        private final AtomicBoolean isShutdown;
+        private final LibPostal libPostal;
+        
+        CleanupAction(AtomicBoolean isShutdown, LibPostal libPostal) {
+            this.isShutdown = isShutdown;
+            this.libPostal = libPostal;
+        }
+        
+        @Override
+        public void run() {
             if (isShutdown.compareAndSet(false, true)) {
                 try {
                     synchronized (libPostal) {
@@ -90,6 +101,6 @@ public class AddressExpander {
                     System.err.println("AddressExpander cleaner error: " + e.getMessage());
                 }
             }
-        });
+        }
     }
 }
